@@ -16,9 +16,9 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
-    restart: unless-stopped
-    expose:
-      - "3000"    # เปิดให้ Nginx เข้าถึงได้จากภายในเท่านั้น
+    environment:
+      - GF_SERVER_ROOT_URL=http://localhost/grafana/  # บอก Grafana ว่า URL หลักคือที่นี่
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true            # ยืนยันการรันใน Sub-path
     networks:
       - global-proxy-net
 
