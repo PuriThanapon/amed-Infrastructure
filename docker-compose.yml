@@ -1,0 +1,28 @@
+services:
+  # --- 1. Nginx: ประตูหน้าบ้าน (Reverse Proxy) ---
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    restart: always
+    ports:
+      - "80:80"   # เปิดพอร์ต 80 ให้โลกภายนอกเข้าได้
+    volumes:
+      # ส่งไฟล์ config จากเครื่องเราเข้าไปใน Nginx
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - global-proxy-net
+
+  # --- 2. Grafana: ระบบ Dashboard (ที่คุณสนใจ) ---
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    expose:
+      - "3000"    # เปิดให้ Nginx เข้าถึงได้จากภายในเท่านั้น
+    networks:
+      - global-proxy-net
+
+networks:
+  # บอก Docker ว่าไม่ต้องสร้างใหม่ ให้ไปใช้ "ถนนเส้นหลัก" ที่เราสร้างไว้แล้ว
+  global-proxy-net:
+    external: true
