@@ -12,7 +12,49 @@ services:
     networks:
       - global-proxy-net
 
-  # --- 2. Grafana: ระบบ Dashboard (ที่คุณสนใจ) ---
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: cadvisor
+    restart: unless-stopped
+    volumes:
+    # จำเป็นต้องแมปโวลุ่มพวกนี้ เพื่อให้ cAdvisor อ่านข้อมูลของ Docker ได้
+    # / คือ root filesystem ของเครื่องโฮสต์
+    # /var/run/docker.sock คือ เข้าไปหาไฟล์ docker.sock เพื่อคุยกับ Docker Engine ว่าตอนนี้มีคอนเทนเนอร์กี่ตัวที่รันอยู่
+    # /sys คือ เข้าไปดูค่าการทำงานของ Kernel เช่น ตัวเลขการใช้งาน CPU และ RAM ที่แท้จริง
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks:
+      - global-proxy-net
+  
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - global-proxy-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"  # บรรทัดนี้สำคัญมาก ถ้าไม่มีจะเข้าผ่าน localhost ไม่ได้
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - global-proxy-net
+  
   grafana:
     image: grafana/grafana:latest
     container_name: grafana

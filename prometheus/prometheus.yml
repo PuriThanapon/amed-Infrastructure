@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 5s # ให้ไปเก็บข้อมูลทุกๆ 5 วินาที (เพื่อให้กราฟไหลลื่น)
+
+# scrape_configs บอก Prometheus ว่าจะไปเก็บข้อมูลจากที่ไหนบ้าง
+scrape_configs:
+  # job_name คือ ชื่อกลุ่มของงานที่เราจะเก็บข้อมูล
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080'] # ชี้ไปที่ตัว cAdvisor
+      
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  - job_name: 'backend-api'
+    metrics_path: '/api/metrics'
+    static_configs:
+      - targets: ['backend-api:3000'] # ชี้ไปที่ backend-api
