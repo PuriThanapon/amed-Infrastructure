@@ -22,7 +22,8 @@ services:
     # /var/run/docker.sock คือ เข้าไปหาไฟล์ docker.sock เพื่อคุยกับ Docker Engine ว่าตอนนี้มีคอนเทนเนอร์กี่ตัวที่รันอยู่
     # /sys คือ เข้าไปดูค่าการทำงานของ Kernel เช่น ตัวเลขการใช้งาน CPU และ RAM ที่แท้จริง
       - /:/rootfs:ro
-      - /var/run:/var/run:ro
+      # - /var/run:/var/run:ro
+      - /var/run:/var/run:rw
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
